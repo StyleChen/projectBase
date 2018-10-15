@@ -1,0 +1,70 @@
+@import './reset.css';
+* {
+  box-sizing: border-box;
+}
+.img-responsive {
+  max-width: 100%;
+}
+a {
+  text-decoration: none;
+  color: initial;
+}
+.container {
+  width: 1170px;
+  margin: 0 auto;
+  background: #FFF;
+}
+.container::before,
+.container::after {
+  display: block;
+  content: '';
+  border-top: 1px solid transparent;
+}
+.left {
+  float: left;
+}
+.right {
+  float: right;
+}
+.left::after,
+.right::after {
+  display: block;
+  content: '';
+  clear: both;
+}
+.pointer {
+  cursor: pointer;
+}
+.wrap {
+  background: #f3f3f3;
+}
+.wrap::after {
+  display: block;
+  content: '';
+  border: 1px solid transparent;
+}
+.blockButton {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+}
+.text-primary {
+  color: #409EFF;
+}
+.container .el-button--warning {
+  background: #ffc107;
+  border-color: #ffc107
+}
+/* 按钮容器 */
+.button_container {
+  float: left;
+  margin-top: 20px;
+}
+/* 分页容器 */
+.page_container {
+  float: right;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 12px;
+  color: #7386A6;
+}
