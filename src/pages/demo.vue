@@ -49,13 +49,16 @@
           width="55">
         </el-table-column>
         <el-table-column
-          prop="user_name"
-          label="账号"
-          header-align="center"
-          align="center"
-          width="180">
+          v-for="item in selectedHeader"
+          :key="item.prop"
+          :prop="item.prop"
+          :label="item.label"
+          :header-align="item.headerAlign"
+          :align="item.align"
+          :width="item.width"
+          :min-width="item.minWidth">
         </el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           prop="name"
           header-align="center"
           align="center"
@@ -75,7 +78,7 @@
           align="center"
           label="状态"
           width="180">
-        </el-table-column>
+        </el-table-column> -->
       </el-table>
     </div>
     <div class="button_container">
@@ -173,7 +176,7 @@
       </div>
     </el-dialog>
     <query-more-modal :queryClose.sync="queryClose" :searchForm.sync="searchForm"></query-more-modal>
-    <select-table-header :selectTableHeaderVisible.sync="selectTableHeaderVisible" :searchForm.sync="searchForm"></select-table-header>
+    <select-table-header :selectTableHeaderVisible.sync="selectTableHeaderVisible" :selectedHeader.sync="selectedHeader"></select-table-header>
   </div>
 </template>
 <script>
@@ -224,33 +227,38 @@ export default {
         sys_role_id: '',
         sport_project: ''
       },
-      tableColumns: [
+      selectedHeader: [
         {
-          title: '全选',
-          fixed: 'left',
+          prop: 'user_name',
+          label: '账号',
+          hoverClass: 'el-icon-close',
+          headerAlign: 'center',
           align: 'center',
-          width: 70,
-          type: 'selection'
+          width: '180'
         },
         {
-          title: '账号',
+          prop: 'name',
+          label: '姓名',
+          hoverClass: 'el-icon-close',
+          headerAlign: 'center',
           align: 'center',
-          key: 'user_name'
+          width: '180'
         },
         {
-          title: '姓名',
+          prop: 'recommend_unit',
+          label: '推荐单位',
+          hoverClass: 'el-icon-close',
+          headerAlign: 'center',
           align: 'center',
-          key: 'name'
+          width: '180'
         },
         {
-          title: '推荐单位',
+          prop: 'enabled',
+          label: '状态',
+          hoverClass: 'el-icon-close',
+          headerAlign: 'center',
           align: 'center',
-          key: 'recommend_unit'
-        },
-        {
-          title: '状态',
-          align: 'center',
-          key: 'enabled'
+          minWidth: '180'
         }
       ],
       tableData: [],
