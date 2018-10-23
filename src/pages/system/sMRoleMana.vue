@@ -3,25 +3,18 @@
     <div class="top">
       <el-form ref="searchForm" :model="searchForm" label-width="80px">
         <el-row>
-          <el-form-item label="角色名称" class="popup_FormItem" style="width: 200px">
-            <el-input name="name" @change="changeData" v-model="searchForm.name" class="search_Input"/>
+          <el-form-item :label="$t('JSMC')" class="popup_FormItem" style="width: 300px">
+            <el-input size="mini" name="name" @change="changeData" v-model="searchForm.name" class="search_Input"/>
           </el-form-item>
-          <!-- <el-form-item label="权限" :label-width="80" class="popup_FormItem">
-            <Select v-model="searchForm.authority_id" @change="changeData" placeholder="" class="search_select">
-              <Option value="">请选择</Option>
-              <Option v-for="item in DROPDOWNBOX.province" :key="item.code" :value="item.code">{{item.label}}</Option>
-            </Select>
-          </el-form-item> -->
-          <search-button text="查 询" class-name="user_action_btn" :clickfunc='searchButton'></search-button>
+          <search-button :text="$t('CX')" class-name="user_action_btn" :clickfunc='searchButton'></search-button>
         </el-row>
       </el-form>
     </div>
     <div class="tableBackgroundDiv">
-    <!-- <Table :height="tableHeight" ref="table" width="100%" size="small" :row-class-name="rowClassName" :columns="tableColumns" :data="tableData" @on-selection-change="selected" @on-select="selected" @on-select-cancel="selected" @on-select-all="selected"></Table> -->
       <el-table
       :data="tableData"
       :height="tableHeight"
-      :header-cell-style="{background: '#FFF', color: '#111111'}"
+      :header-cell-style="{background: '#DDD', color: '#111111'}"
       :row-class-name="rowClassName"
       border
       ref="table"
@@ -31,7 +24,7 @@
         <el-table-column
           type="index"
           fixed="left"
-          label="序号"
+          :label="$t('XH')"
           header-align="center"
           align="center"
           width="50">
@@ -45,27 +38,23 @@
         </el-table-column>
         <el-table-column
           prop="name"
-          label="角色名称"
+          :label="$t('JSMC')"
           header-align="center"
           align="center">
         </el-table-column>
         <el-table-column
           header-align="center"
           align="center"
-          label="修改">
+          :label="$t('XG')">
           <template slot-scope="params">
-            <button class="edit_button" @click="dispathAuthority(params)" size="small">分配权限</button>
+            <button class="edit_button" @click="dispathAuthority(params)" size="small">{{$t('FPQX')}}</button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <div class="button_container">
-      <default-button text="增 加" class-name="user_action_btn" :clickfunc='addButton'></default-button>
-    </div>
-    <div class="page_container">
+    <div class="pageContainer">
       <!-- <Page size="small" class="floatLeft" ref="pages" :current="currentPage" :total='totalPage' show-total class-name="pageClass" show-elevator show-sizer :pageSize="page_size" placement="top" @change="changePage" @on-page-size-change="changePageSize"></Page> -->
       <el-pagination
-      small
       @size-change="changePageSize"
       @current-change="changePage"
       :current-page="currentPage"
@@ -76,28 +65,42 @@
       class="floatLeft"
       ref="pages"></el-pagination>
     </div>
-    <el-dialog :visible.sync="allotAuthoDisplay" class="allotAutho_style" :title="allotAuthoText" :styles="allotAuthoStyle" :mask-closable="false" :closable="false" :loading="loading">
+    <div class="defaultButtonContainer">
+      <default-button :text="$t('ZJ')" class-name="user_action_btn" :clickfunc='addButton'></default-button>
+      <default-button :text="$t('SC')" class-name="user_action_btn" :clickfunc='deleteButton'></default-button>
+    </div>
+    <el-dialog center :visible.sync="allotAuthoDisplay" class="allotAutho_style" :title="allotAuthoText" :styles="allotAuthoStyle" :loading="loading">
       <div class="display_body">
         <el-form ref="popupContent" :model="popupContent" :rules="popupContentRules">
         <el-row>
-          <el-form-item label="角色名称" :label-width="80" prop="name" class="popup_FormItem" style="width: 200px">
+          <el-form-item :label="$t('JSMC')" label-width="80px" prop="name" class="popup_FormItem" style="width: 200px">
             <el-input name="name" v-model="popupContent.name" class="popup_Input"/>
           </el-form-item>
         </el-row>
       </el-form>
       </div>
       <div class="tree">
-        <el-tree :data="treeData" show-checkbox multiple @check-change="treeSelectdChange" ref="TreeGetChecked"></el-tree>
+        <el-tree :data="treeData" show-checkbox accordion multiple @check-change="treeSelectdChange" :props="{label: 'name'}" node-key="id" ref="TreeGetChecked"></el-tree>
       </div>
       <div slot="footer" class="footer">
-        <default-button text="确认" class-name="user_action_btn" :clickfunc='allotAuthoSubmit'></default-button>
-        <default-button text="取消" class-name="user_action_btn" :clickfunc='cancelButton'></default-button>
-        <!-- <Button type="text" size="small" @click="allotAuthoSubmit">确认</Button>
-        <Button type="text" size="small" @click="cancelButton">取消</Button> -->
+        <default-button :text="$t('QX')" class-name="user_action_btn" :clickfunc='cancelButton'></default-button>
+        <default-button :text="$t('QR')" class-name="user_action_btn" :clickfunc='allotAuthoSubmit'></default-button>
+      </div>
+    </el-dialog>
+    <el-dialog :visible.sync="isDelete" center width="400px">
+      <h1 slot="title">{{$t('QRSC')}}</h1>
+      <div class="del_body">
+        <i style="vertical-align: middle; margin-right: 10px; font-size: 36px; color: red" class="el-icon-warning"></i>
+        {{$t('QRSC')}}
+      </div>
+      <div slot="footer" class="footer">
+        <el-button type="info" @click='isDelete=false'>{{$t('QX')}}</el-button>
+        <el-button type="primary" @click='deleteTure'>{{$t('QR')}}</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
+
 <script>
 import apis from '@/apis'
 import { mapState } from 'vuex'
@@ -108,11 +111,12 @@ export default {
   components: { defaultButton, searchButton },
   mixins: [mixin],
   data () {
+    const _this = this
     return {
       currentPage: 1, // 当前页
       page_size: 10, // 每页10条
       totalPage: 1, // 共几条
-      allotAuthoText: '添加权限',
+      allotAuthoText: _this.$t('TJQX'),
       allotAuthoId: [],
       batchCancelId: [],
       loading: true,
@@ -122,120 +126,58 @@ export default {
         width: '400px'
       },
       searchForm: {
-        name: ''
+        name: '',
+        systemId: ''
       },
       popupContent: {
-        name: ''
+        name: '',
+        id: ''
       },
-      tableColumns: [
-        {
-          title: '全选',
-          fixed: 'left',
-          align: 'center',
-          width: 70,
-          type: 'selection'
-        },
-        {
-          title: '角色名称',
-          align: 'center',
-          key: 'name'
-        },
-        {
-          title: '修改',
-          align: 'center',
-          render: (h, params) => {
-            return h('div', [
-              h('button', {
-                props: {
-                  type: 'submit'
-                },
-                class: [
-                  'edit_button'
-                ],
-                on: {
-                  click: () => {
-                    this.batchCancelId = []
-                    this.batchCancelId.push(params.row.id)
-                    this.getAssignRoleAuthoritySearch()
-                    this.allotAuthoText = '分配权限'
-                    this.edit = true
-                    this.allotAuthoDisplay = true
-                    this.popupContent.id = this.batchCancelId.join()
-                    this.$http.post(apis.RoleSelectId, {id: this.batchCancelId.join()}).then((res) => {
-                      if ((res.data.status).toString() === '1') {
-                        let data = res.data.data
-                        this.popupContent.name = data.name
-                        this.$forceUpdate()
-                      }
-                    })
-                  }
-                }
-              }, '分配权限')
-            ])
-          }
-        }
-      ],
       tableData: [],
       treeData: [],
+      isDelete: false, // 确认删除
       popupContentRules: {
-        name: [{ required: true, message: ' ', trigger: 'blur' }]
+        name: [{ required: true, message: _this.$t('QSRJSMC'), trigger: 'blur' }]
       }
     }
   },
   computed: {
-    ...mapState(['USERNAME', 'USERTYPE', 'DROPDOWNBOX']),
+    ...mapState(['USERNAME', 'USERTYPE', 'SYSTEMID']),
     tableHeight () {
       return document.documentElement.clientHeight - 434 + 127
     }
   },
+  mounted () {
+    this.searchForm.systemId = this.SYSTEMID
+    this.getAssignRoleAuthoritySearch()
+  },
   methods: {
     getAssignRoleAuthoritySearch () { // 获取树形
-      let treeData = []
-      this.$http.post(apis.AssignRoleAuthoritySearch, {role_id: this.batchCancelId.join(',')}).then((res) => {
-        if ((res.data.status).toString() === '1') {
-          let data = res.data.data
-          data.records.map((item) => {
-            let obj = {
-              expand: true,
-              key: item.key,
-              title: item.title,
-              children: item.children,
-              checked: item.checked
-            }
-            let resetChildCheck = (itemObj) => {
-              itemObj.children && itemObj.children.map((childrenItem) => {
-                childrenItem.expand = true
-                if (!childrenItem.checked) {
-                  itemObj.checked = false
-                }
-                resetChildCheck(childrenItem)
-              })
-            }
-            resetChildCheck(obj)
-            treeData.push(obj)
-          })
-          this.treeData = treeData
-          this.$forceUpdate()
+      this.$http.post(apis.GetResourceBySystemId, {id: this.searchForm.systemId}).then((res) => {
+        if (res.data.code === 200) {
+          this.treeData = res.data.data
         }
       })
     },
     searchInfo () {
       let searchForm = this.searchForm
       searchForm.pageSize = this.page_size
-      searchForm.currentPage = this.currentPage
+      searchForm.oageIndex = this.currentPage
       this.$http.post(apis.RoleSelect, searchForm).then((res) => {
-        if ((res.data.status).toString() === '1') {
+        if (res.data.code === 200) {
           let data = res.data.data
-          this.tableData = data.records
+          this.tableData = data.record
           this.totalPage = parseInt(data.totalRecord)
         }
       })
     },
     addButton () {
       this.batchCancelId = []
-      this.getAssignRoleAuthoritySearch()
-      this.allotAuthoText = '添加权限'
       this.allotAuthoDisplay = true
+      setTimeout(() => {
+        this.$refs.TreeGetChecked.setCheckedKeys([])
+      }, 500)
+      this.allotAuthoText = this.$t('TJQX')
       this.edit = false
     },
     allotAuthoSubmit () {
@@ -243,34 +185,13 @@ export default {
       this.$nextTick(() => {
         this.loading = true
       })
-      let allotAuthoAry = []
-      this.treeData.map((item) => {
-        let pushKey = (itemObj) => {
-          if (!itemObj.children && this.allotAuthoId.indexOf(itemObj.key) !== -1 && allotAuthoAry.indexOf(itemObj.key) === -1) {
-            allotAuthoAry.push(itemObj.key)
-          }
-          itemObj.children && itemObj.children.map((childrenItem) => {
-            if (this.allotAuthoId.indexOf(childrenItem.key) !== -1 && allotAuthoAry.indexOf(childrenItem.key) === -1) {
-              allotAuthoAry.push(childrenItem.key)
-              if (allotAuthoAry.indexOf(itemObj.key) === -1) {
-                allotAuthoAry.push(itemObj.key)
-              }
-            }
-            pushKey(childrenItem)
-          })
-        }
-        pushKey(item)
-      })
-      // console.log(this.allotAuthoId)
-      // console.log(allotAuthoAry)
       this.$refs.popupContent.validate((valid) => {
         if (valid) {
-          let apisUrl = this.edit ? apis.RoleUpdate : apis.RoleAdd
           let formData = this.popupContent
-          formData.authority_ids = allotAuthoAry.join(',')
-          formData.role_id = this.batchCancelId.join('')
-          this.$http.post(apisUrl, formData).then((res) => {
-            if ((res.data.status).toString() === '1') {
+          formData.systemId = this.searchForm.systemId
+          formData.resourceId = this.$refs.TreeGetChecked.getCheckedKeys() // tree获取选中的id
+          this.$http.post(apis.CreateOrEditSaveRoleAndRoleResource, formData).then((res) => {
+            if (res.data.code === 200) {
               this.cancelButton()
               this.searchInfo()
             }
@@ -278,10 +199,25 @@ export default {
         }
       })
     },
+    deleteButton () {
+      if (this.batchCancelId.length > 0) {
+        this.isDelete = true
+      } else {
+        this.$message.error(this.$t('QXZYSCDJS'))
+      }
+    },
+    deleteTure () {
+      this.$http.post(apis.RoleRemove, { id: this.batchCancelId }).then(res => {
+        if (res.data.code === 200) {
+          this.isDelete = false
+          this.searchInfo()
+        }
+      })
+    },
     cancelButton () {
       this.allotAuthoDisplay = false
       this.popupContent = {}
-      this.treeData = []
+      // this.treeData = []
       this.$refs.popupContent.resetFields()
       this.handleSelectAll()
     },
@@ -295,15 +231,14 @@ export default {
     dispathAuthority (params) {
       this.batchCancelId = []
       this.batchCancelId.push(params.row.id)
-      this.getAssignRoleAuthoritySearch()
-      this.allotAuthoText = '分配权限'
+      this.allotAuthoText = this.$t('FPJS')
       this.edit = true
       this.allotAuthoDisplay = true
-      this.popupContent.id = this.batchCancelId.join()
-      this.$http.post(apis.RoleSelectId, {id: this.batchCancelId.join(',')}).then((res) => {
-        if ((res.data.status).toString() === '1') {
-          let data = res.data.data
-          this.popupContent.name = data.name
+      this.popupContent.id = params.row.id
+      this.popupContent.name = params.row.name
+      this.$http.post(apis.GetAuthResourceIdByRoleId, {id: params.row.id}).then((res) => {
+        if (res.data.code === 200) {
+          this.$refs.TreeGetChecked.setCheckedKeys(res.data.data)
           this.$forceUpdate()
         }
       })
