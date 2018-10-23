@@ -10,13 +10,13 @@
         <img src="../assets/images/login_user_logo.png" alt="">
         <div class="input_container">
           <input type="text" placeholder="用户名"  @keyup.enter="userLogin" v-model="userName">
-          <div>
+          <div class="loginInputContainer">
             <input :type="showPwd ? 'text' : 'password'" class="password_class" placeholder="密码" @keyup.enter="userLogin" v-model="password">
             <img class="password_img" @click="showPwd=!showPwd" :src="showPwd ? require('../assets/images/eyes_open.png') : require('../assets/images/eyes_close.png')" alt="">
           </div>
-          <div>
+          <div class="loginInputContainer">
             <input type="text" placeholder="验证码" @keyup.enter="userLogin" v-model="validateCode">
-            <img class="code" :src="validateCodeImg" alt="验证码" @click="validateCodeImg=`${validateCodeImg}?validateCodeImg=${Math.random()}`">
+            <img class="code" :src="`data:image/png;base64, ${validateCodeImg}`" :alt="$t('YZM')" @click="updateValidateCodeImg">
           </div>
         </div>
         <div>
@@ -41,7 +41,7 @@ export default {
     return {
       Vue: vue,
       showPwd: false,
-      validateCodeImg: apis.PictureValidateCode,
+      validateCodeImg: '',
       operate_ip: '',
       userName: '',
       password: '',
@@ -75,9 +75,7 @@ export default {
     }
   },
   mounted () {
-    sessionStorage.setItem('MYBROWSER', this.myBrowser)
-    this.setMyBrowser(this.myBrowser)
-    this.validateCodeImg = apis.PictureValidateCode + '?' + Math.random() // 更新验证码
+    this.updateValidateCodeImg() // 获取验证码
     if (this.ISCHECKED.getCookie() === '1') {
       // 判断记住密码是否勾选
       this.isCheck = true
@@ -94,8 +92,40 @@ export default {
       this.password = this.PASSWORD.getCookie()
     }
   },
+  created () {
+    if (this.$route.query.token) {
+      this.$http({
+        method: 'post',
+        url: apis.SSOLoginByToken,
+        headers: {
+          'x-xsrf-token': this.$route.query.token
+        }
+      }).then(res => {
+        if (res.data.code === 200) {
+          // 使用Store 方法操作共享状态
+          this.setName(res.data.data.name)
+          this.setUserId(res.data.data.id)
+          this.setAuthority(res.data.data.resource)
+          sessionStorage.setItem('NAME', res.data.data.name) // 用户名
+          sessionStorage.setItem('USERID', res.data.data.id) // 用户名ID
+          sessionStorage.setItem('authority', JSON.stringify(res.data.data.resource)) // 权限
+          this.$router.push({
+            path: '/dlHome/dlIndex'
+          })
+        }
+      })
+    }
+  },
   methods: {
     ...mapMutations(['setUserName', 'setUserType', 'setUserId', 'setName', 'setMyBrowser', 'setAuthority']), // 获取同步操作共享状态方法
+    // 更新验证码
+    updateValidateCodeImg () {
+      this.$http.get(`${apis.GetVerifyCode}?code=${Math.random()}`).then(res => {
+        if (parseInt(res.data.code) === 200) {
+          this.validateCodeImg = res.data.data.verifyCode
+        }
+      })
+    },
     userLogin () {
       if (this.userName.trim() === '') {
         this.$Message.error('请填写用户名！')
@@ -113,16 +143,12 @@ export default {
         method: 'post',
         url: apis.UserLogin,
         data: {
-          userName: this.userName, // 登录账号
+          loginName: this.userName, // 登录账号
           password: this.password,
-          validateCode: this.validateCode,
-          operate_type: 'loginIn',
-          operate_terminal: 'PC端',
-          operate_ip: this.OPERATEIP,
-          operate_browser: this.myBrowser
+          verifyCode: this.validateCode
         }
       }).then(res => {
-        if (parseInt(res.data.status) === 1) {
+        if (res.data.code === 200) {
           if (this.isCheck) {
             this.USER.setCookie(this.userName, 7) // cookie 保存账号
             this.PASSWORD.setCookie(this.password, 7) // cookie 保存密码
@@ -143,11 +169,11 @@ export default {
           sessionStorage.setItem('USERNAME', this.userName) // 用户账号
           sessionStorage.setItem('USERTYPE', res.data.data.user_type) // 用户类型编码
 
-          let authority = res.data.data.authority
+          /* let authority = res.data.data.resource
           let newArr = []
           authority.map((item) => {
             let mapData = (child) => {
-              if (child.children) {
+              if (child.children.length > 0) {
                 child.isChildrenPage = true
                 child.mouseDataCount = false
                 child.isActive = false
@@ -179,7 +205,7 @@ export default {
             this.setAuthority(newA)
           } catch (e) {
             this.setAuthority([])
-          }
+          } */
           // let item = {
           //   path: '/workTable',
           //   name: '首页'
@@ -189,7 +215,7 @@ export default {
             path: '/systemMana/sMUserMana'
           })
         } else {
-          this.validateCodeImg = apis.PictureValidateCode + '?' + Math.random()
+          this.updateValidateCodeImg()
         }
       })
     }
@@ -248,8 +274,8 @@ export default {
 .password_img {
   cursor: pointer;
   position: absolute;
-  right: 55px;
-  bottom: 197px;
+  right: 20px;
+  bottom: 30px;
 }
 .input_container input {
   padding-left: 18px;
@@ -279,9 +305,15 @@ export default {
   color: #fff;
   border-radius: 25px;
 }
+.loginInputContainer {
+  position: relative;
+  overflow: hidden;
+  border-radius: 25px;
+}
 .code {
   position: absolute;
-  right: 55px;
-  bottom: 135px;
+  height: 40px;
+  right: 0;
+  bottom: 0;
 }
 </style>
